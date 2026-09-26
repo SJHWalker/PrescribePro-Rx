@@ -14,8 +14,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PrescribePro Rx</title>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="./libs/jspdf.umd.min.js"></script>
+<script src="./libs/html2canvas.min.js"></script>
+<script src="./libs/xlsx.full.min.js"></script>
 
 <!-- Global bridge to avoid GSI initialization race conditions -->
 <script>
@@ -168,6 +170,19 @@
   .patient-name { font-weight: 600; font-size: 15px; color: var(--text); margin-bottom: 3px; }
   .patient-meta { font-size: 12px; color: var(--text-3); display: flex; gap: 8px; }
   .patient-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+ .patient-mr {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid rgba(44,95,138,.12);
+  margin-bottom: 6px;
+}  
   .badge-m { background: #e8f0f8; color: var(--accent); }
   .badge-f { background: #fce8f3; color: #9b2d7a; }
   .patient-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; opacity: 0; transition: opacity .2s; }
@@ -652,22 +667,33 @@
     <div class="login-title">Sign in to continue</div>
 
     <!-- Custom Google Sign-In button -->
-    <button class="btn-google" id="btn-google-signin" onclick="startGoogleLogin()">
-      <svg class="google-icon" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      <span id="btn-google-text">Continue with Google</span>
-    </button>
+<button class="btn-google" id="btn-google-signin" onclick="startGoogleLogin()">
+  <svg class="google-icon" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+  </svg>
+  <span id="btn-google-text">Continue with Google</span>
+</button>
 
-    <!-- Loading state shown while signing in -->
-    <div id="login-loading" style="display:none; flex-direction:column; align-items:center; gap:12px; padding:16px 0">
-      <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div>
-      <div id="login-loading-text" style="font-size:13px; color:var(--text-3)">Signing in with Google…</div>
-    </div>
+<div style="margin:14px 0 4px; color:var(--text-3); font-size:12px;">
+  or
+</div>
 
+<button
+  class="btn btn-secondary"
+  id="btn-offline-login"
+  onclick="startOfflineMode()"
+  style="width:100%; justify-content:center;">
+  📴 Continue Offline
+</button>
+
+<!-- Loading state shown while signing in -->
+<div id="login-loading" style="display:none; flex-direction:column; align-items:center; gap:12px; padding:16px 0">
+  <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div>
+  <div id="login-loading-text" style="font-size:13px; color:var(--text-3)">Signing in with Google…</div>
+</div>
     <p class="login-note">Your data is stored locally and backed up to your Google Drive. We never share your patient data.</p>
   </div>
 </div>
@@ -752,7 +778,11 @@
       </div>
       <div style="margin-bottom:16px">
         <div class="search-bar" style="max-width:340px">
-          <input type="text" id="patient-search" placeholder="Search patients..." oninput="renderPatients()">
+          <input 
+              type="text" 
+              id="patient-search" 
+              placeholder="Search by name, MR number or contact..." 
+              oninput="renderPatients()">
         </div>
       </div>
       <div id="patient-grid" class="patient-grid"></div>
@@ -996,7 +1026,7 @@
     <div id="section-about" class="section-content hidden">
       <div class="section-title" style="margin-bottom:20px">About PrescribePro Rx</div>
       <div class="card">
-        <h2 style="margin-bottom:12px">Dr. Gazi Md Emran Ahmed, MBBS (DU)</h2>
+        <h2 style="margin-bottom:12px">Dr. Syed Junaid Humail, MBBS</h2>
         <p style="line-height:1.8">
         Note: This project is free for all registered MBBS doctors across the world as a Sadakatul Jariya.
         Please do not sell any part of it to any registered doctor.
@@ -1004,7 +1034,7 @@
         <br>
         <p style="line-height:1.8">
         This app is made with various AI agents. If you find any error please send an email to:
-        <strong>emranahmed.bd@gmail.com</strong>
+        <strong>syed.humail007@gmail.com</strong>
         </p>
         <br>
         <p style="line-height:1.8">
@@ -1020,25 +1050,26 @@
 
 <!-- Shared frequency datalist for drug rows -->
 <datalist id="freq-options">
-  <option value="১+১+১">১+১+১ (তিনবার)</option>
-  <option value="১+০+১">১+০+১ (দুইবার)</option>
-  <option value="১+০+০">১+০+০ (সকাল)</option>
-  <option value="০+০+১">০+০+১ (রাত)</option>
-  <option value="০+১+০">০+১+০ (দুপুর)</option>
-  <option value="০+০+½">০+০+½ (আধা রাত)</option>
-  <option value="½+০+½">½+০+½ (আধা দুইবার)</option>
-  <option value="½+½+½">½+½+½ (আধা তিনবার)</option>
-  <option value="১+১+১+১">১+১+১+১ (চারবার)</option>
-  <option value="২+২+২">২+২+২ (দুই তিনবার)</option>
-  <option value="২+০+২">২+০+২ (দুই দুইবার)</option>
-  <option value="২+২+২+২">২+২+২+২ (দুই চারবার)</option>
-  <option value="SOS">SOS (প্রয়োজনে)</option>
-  <option value="Stat">Stat (এখনই)</option>
-  <option value="প্রতি ৮ ঘণ্টা">প্রতি ৮ ঘণ্টা</option>
-  <option value="প্রতি ১২ ঘণ্টা">প্রতি ১২ ঘণ্টা</option>
-  <option value="সপ্তাহে একবার">সপ্তাহে একবার</option>
-  <option value="প্রতিদিন রাতে">প্রতিদিন রাতে</option>
-  <option value="প্রতিদিন সকালে">প্রতিদিন সকালে</option>
+<option value="1+1+1">1+1+1 (تین بار)</option>
+<option value="1+۰+1">1+۰+1 (دو بار)</option>
+<option value="1+0+0">1+0+0 (صبح)</option>
+<option value="0+0+1">0+0+1 (رات)</option>
+<option value="0+1+0">0+1+0 (دوپہر)</option>
+<option value="0+0+½">0+0+½ (آدھی رات)</option>
+<option value="½+0+½">½+0+½ (آدھی خوراک دو بار)</option>
+<option value="½+½+½">½+½+½ (آدھی خوراک تین بار)</option>
+<option value="1+1+1+1">1+1+1+1 (چار بار)</option>
+<option value="2+2+2">2+2+2 (دو گولیاں تین بار)</option>
+<option value="2+0+2">2+0+2 (دو گولیاں دو بار)</option>
+<option value="0+2+0">0+2+0 (دوپہردو گولیاں  )</option>
+<option value="2+2+2+2">2+2+2+2 (دو گولیاں چار بار)</option>
+<option value="SOS">SOS (ضرورت کے وقت)</option>
+<option value="Stat">Stat (فوراً)</option>
+<option value="ہر 8 گھنٹے">ہر 8 گھنٹے</option>
+<option value="ہر 12 گھنٹے">ہر 12 گھنٹے</option>
+<option value="ہفتے میں ایک بار">ہفتے میں ایک بار</option>
+<option value="روزانہ رات کو">روزانہ رات کو</option>
+<option value="روزانہ صبح کو">روزانہ صبح کو</option>
 </datalist>
 
 <!-- Patient Modal -->
@@ -1164,6 +1195,7 @@ var tokenClient = null;
 // ── STATE ──
 let state = {
   loggedIn: false,
+  offlineMode: false,
   user: { name: 'Dr. Someone', email: '', initials: 'DS' },
   profile: {
     name: 'Dr. Someone',
@@ -1197,6 +1229,10 @@ let state = {
   patients: [],
   prescriptions: [],
   customDrugs: [],   // ← uploaded drug database
+  
+  // Patient MR number sequence
+  nextMrNumber: 1,
+
   currentRx: null,
   editingPatientId: null
 };
@@ -1510,47 +1546,328 @@ const DRUGS = [
 ];
 
 // ── PERSISTENCE ──
+
+const OFFLINE_DB_NAME = 'PrescribeProRxDB';
+const OFFLINE_DB_VERSION = 1;
+const OFFLINE_STORE_NAME = 'appState';
+
+function openOfflineDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(
+      OFFLINE_DB_NAME,
+      OFFLINE_DB_VERSION
+    );
+
+    request.onupgradeneeded = function(event) {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains(OFFLINE_STORE_NAME)) {
+        db.createObjectStore(OFFLINE_STORE_NAME);
+      }
+    };
+
+    request.onsuccess = function() {
+      resolve(request.result);
+    };
+
+    request.onerror = function() {
+      reject(request.error);
+    };
+  });
+}
+
+function saveOfflineState(data) {
+  return openOfflineDB().then(db => {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(
+        OFFLINE_STORE_NAME,
+        'readwrite'
+      );
+
+      const store = tx.objectStore(OFFLINE_STORE_NAME);
+
+      const request = store.put(
+        data,
+        'offline_state'
+      );
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+
+      tx.oncomplete = () => db.close();
+      tx.onerror = () => reject(tx.error);
+    });
+  });
+}
+
+function loadOfflineState() {
+  return openOfflineDB().then(db => {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(
+        OFFLINE_STORE_NAME,
+        'readonly'
+      );
+
+      const store = tx.objectStore(OFFLINE_STORE_NAME);
+      const request = store.get('offline_state');
+
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+
+      tx.oncomplete = () => db.close();
+      tx.onerror = () => reject(tx.error);
+    });
+  });
+}
+
 function getStorageKey() {
-  const email = (state.user && state.user.email) ? state.user.email : 'default';
+  const email = (state.user && state.user.email)
+    ? state.user.email
+    : 'default';
+
   return 'prescribepro_state_' + email;
 }
 
 function saveState() {
-  localStorage.setItem(getStorageKey(), JSON.stringify(state));
-  if (state.user && state.user.email) {
-    localStorage.setItem('prescribepro_last_email', state.user.email);
+
+  // Offline Mode → IndexedDB
+  if (state.offlineMode) {
+    return saveOfflineState(state).catch(e => {
+      console.error('IndexedDB save failed:', e);
+    });
+  }
+
+  // Online Google account → temporary legacy storage
+  try {
+    localStorage.setItem(
+      getStorageKey(),
+      JSON.stringify(state)
+    );
+
+    if (state.user && state.user.email) {
+      localStorage.setItem(
+        'prescribepro_last_email',
+        state.user.email
+      );
+    }
+  } catch (e) {
+    console.error('Local storage save failed:', e);
+  }
+}
+async function migrateLegacyStateToIndexedDB() {
+  try {
+    const lastEmail =
+      localStorage.getItem('prescribepro_last_email');
+
+    if (!lastEmail) return;
+
+    const legacyKey =
+      'prescribepro_state_' + lastEmail;
+
+    const legacy =
+      localStorage.getItem(legacyKey);
+
+    if (!legacy) return;
+
+    const parsed = JSON.parse(legacy);
+
+    if (!parsed || typeof parsed !== 'object') {
+      return;
+    }
+
+    const db = await openOfflineDB();
+
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(
+        OFFLINE_STORE_NAME,
+        'readwrite'
+      );
+
+      const store = tx.objectStore(
+        OFFLINE_STORE_NAME
+      );
+
+      const request = store.put(
+        {
+          ...parsed,
+          offlineMode: false
+        },
+        'account_' + lastEmail
+      );
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+
+      tx.oncomplete = () => db.close();
+      tx.onerror = () => reject(tx.error);
+    });
+
+    // Remove the large localStorage copy
+    localStorage.removeItem(legacyKey);
+
+    console.log(
+      '✅ Legacy account data migrated to IndexedDB'
+    );
+
+  } catch (e) {
+    console.warn(
+      'Legacy IndexedDB migration skipped:',
+      e
+    );
   }
 }
 
-function loadState() {
-  const lastEmail = localStorage.getItem('prescribepro_last_email');
-  const key = lastEmail ? ('prescribepro_state_' + lastEmail) : 'prescribepro_state';
-  const s = localStorage.getItem(key) || localStorage.getItem('prescribepro_state');
-  if (s) {
-    const loaded = JSON.parse(s);
-    Object.assign(state, loaded);
+function loadAccountStateFromIndexedDB(email) {
+  return openOfflineDB().then(db => {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(
+        OFFLINE_STORE_NAME,
+        'readonly'
+      );
+
+      const store = tx.objectStore(
+        OFFLINE_STORE_NAME
+      );
+
+      const request = store.get(
+        'account_' + email
+      );
+
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+
+      tx.oncomplete = () => db.close();
+      tx.onerror = () => reject(tx.error);
+    });
+  });
+}
+
+async function loadState() {
+
+  // 1. Load active Offline Mode state
+  try {
+    const offlineState =
+      await loadOfflineState();
+
+    if (
+      offlineState &&
+      offlineState.offlineMode === true
+    ) {
+      Object.assign(
+        state,
+        offlineState
+      );
+
+      return;
+    }
+
+  } catch (e) {
+    console.warn(
+      'Offline IndexedDB state unavailable:',
+      e
+    );
   }
-  
-  const cachedToken = localStorage.getItem('google_access_token');
-  const cachedExpiry = localStorage.getItem('google_token_expiry');
-  if (cachedToken && cachedExpiry && parseInt(cachedExpiry) > Date.now()) {
+
+  // 2. Migrate old 4.89 MB localStorage data
+  await migrateLegacyStateToIndexedDB();
+
+  // 3. Load Google account state from IndexedDB
+  const lastEmail =
+    localStorage.getItem(
+      'prescribepro_last_email'
+    );
+
+  if (lastEmail) {
+    try {
+      const accountState =
+        await loadAccountStateFromIndexedDB(
+          lastEmail
+        );
+
+      if (accountState) {
+        Object.assign(
+          state,
+          accountState
+        );
+      }
+
+    } catch (e) {
+      console.warn(
+        'IndexedDB account state could not be loaded:',
+        e
+      );
+    }
+  }
+
+  // 4. Recover cached Google token
+  const cachedToken =
+    localStorage.getItem(
+      'google_access_token'
+    );
+
+  const cachedExpiry =
+    localStorage.getItem(
+      'google_token_expiry'
+    );
+
+  if (
+    cachedToken &&
+    cachedExpiry &&
+    parseInt(cachedExpiry) > Date.now()
+  ) {
     googleAccessToken = cachedToken;
-    googleTokenExpiry = parseInt(cachedExpiry);
+    googleTokenExpiry = parseInt(
+      cachedExpiry
+    );
   }
 }
 
 // ── INIT ──
-loadState();
-if (state.loggedIn) {
-  showApp();
-  if (googleAccessToken) {
-    updateDriveStatus(true);
+async function initApp() {
+  await loadState();
+
+  if (state.loggedIn) {
+    showApp();
+
+    if (state.offlineMode) {
+      updateDriveStatus(false);
+    } else if (googleAccessToken) {
+      updateDriveStatus(true);
+       
+      // Refresh latest data from Google Drive on startup
+      try {
+        await loadFromDrive();
+        await loadDrugDbFromDrive();
+
+        renderDashboard();
+        renderPatients();
+        renderAllRx();
+        renderDbSection();
+
+        updateDriveStatus(true);
+        console.log('✅ Startup cloud refresh completed');
+      } catch (e) {
+        console.error('❌ Startup cloud refresh failed:', e);
+      }
+    } else {
+      updateDriveStatus(false);
+    }
   } else {
-    updateDriveStatus(false);
+    updateGreeting();
   }
-} else {
-  updateGreeting();
 }
+
+initApp();
 
 function updateGreeting() {
   const h = new Date().getHours();
@@ -1564,13 +1881,19 @@ const GOOGLE_CLIENT_ID = '786878118607-87ckss6gcqi6sns64t9ton5cfn0hjna4.apps.goo
 const GOOGLE_SCOPES = 'openid profile email https://www.googleapis.com/auth/drive.appdata';
 
 function getDriveFileName() {
-  const email = (state.user && state.user.email) ? state.user.email.replace(/[^a-zA-Z0-9]/g, '_') : 'default';
+  const email = (state.user && state.user.email)
+    ? state.user.email.replace(/[^a-zA-Z0-9]/g, '_')
+    : 'default';
+
   return `prescribepro_backup_${email}.json`;
 }
 
 function initGoogleAuth() {
+  if (state.offlineMode) return;
+
   if (typeof google === 'undefined' || !google.accounts) return;
-  if (tokenClient) return; // Prevent double initialization
+  if (tokenClient) return;
+
   try {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
@@ -1578,7 +1901,7 @@ function initGoogleAuth() {
       callback: onTokenReceived,
       error_callback: onTokenError,
     });
-    
+
     if (state.loggedIn && !googleAccessToken) {
       tokenClient.requestAccessToken({ prompt: '' });
     }
@@ -1587,16 +1910,72 @@ function initGoogleAuth() {
   }
 }
 
-// Bind auth initializer directly to window reference
 window.initGoogleAuth = initGoogleAuth;
 
-// Crucial: check immediately if library was already resolved via global onload or fast load
-if (window.googleLibLoaded || (typeof google !== 'undefined' && google.accounts)) {
+if (
+  window.googleLibLoaded ||
+  (typeof google !== 'undefined' && google.accounts)
+) {
   initGoogleAuth();
 }
 
-// Called when user clicks "Continue with Google"
-function startGoogleLogin() {
+// Called when user clicks "Continue Offline"
+async function startOfflineMode() {
+  try {
+
+    // Try to restore previously saved offline data.
+    try {
+      const existingOfflineState = await loadOfflineState();
+
+      if (
+        existingOfflineState &&
+        existingOfflineState.offlineMode === true
+      ) {
+        Object.assign(state, existingOfflineState);
+      }
+    } catch (e) {
+      console.warn('No previous offline state:', e);
+    }
+
+    state.loggedIn = true;
+    state.offlineMode = true;
+
+    if (!state.user) {
+      state.user = {
+        name: 'Offline Doctor',
+        email: '',
+        initials: 'DR'
+      };
+    }
+
+    if (
+      !state.user.name ||
+      state.user.name === 'Dr. Someone'
+    ) {
+      state.user.name = 'Offline Doctor';
+      state.user.initials = 'DR';
+    }
+
+    state.user.email = '';
+    state.user.picture = '';
+
+    // Save the full offline state to IndexedDB.
+    await saveOfflineState(state);
+
+    showApp();
+    updateDriveStatus(false);
+
+    toast('📴 Offline Mode — data is stored locally');
+
+  } catch (e) {
+    console.error('Offline mode error:', e);
+
+    toast(
+      '❌ Could not start Offline Mode: ' +
+      (e.message || e)
+    );
+  }
+}function startGoogleLogin() {
   if (typeof google === 'undefined' || !google.accounts) {
     toast('❌ Google sign-in unavailable. Check your internet connection.');
     return;
@@ -1793,6 +2172,12 @@ async function getDriveFileId() {
 }
 
 async function syncDrive(silent = false) {
+ if (state.offlineMode) {
+    if (!silent) {
+      toast('📴 Offline Mode — changes are stored locally');
+    }
+    return;
+  }
   if (!googleAccessToken) {
     if (!silent) toast('⚠️ Reconnecting to Drive…');
     try { await refreshDriveTokenSilent(); } catch(e) { if (!silent) toast('❌ Please sign out and back in to reconnect Drive.'); return; }
@@ -1869,21 +2254,80 @@ function showApp() {
   renderAllRx();
 }
 
-function logOut() {
+async function logOut() {
   if (!confirm('Sign out of PrescribePro Rx?')) return;
-  if (googleAccessToken && typeof google !== 'undefined' && google.accounts) {
-    google.accounts.oauth2.revoke(googleAccessToken, () => {});
+
+  if (
+    !state.offlineMode &&
+    googleAccessToken &&
+    typeof google !== 'undefined' &&
+    google.accounts
+  ) {
+    google.accounts.oauth2.revoke(
+      googleAccessToken,
+      () => {}
+    );
   }
+
   googleAccessToken = null;
   googleTokenExpiry = null;
+
   localStorage.removeItem('google_access_token');
   localStorage.removeItem('google_token_expiry');
   localStorage.removeItem('prescribepro_last_email');
+
+  // Remove active Offline Mode session
+  if (state.offlineMode) {
+    try {
+      const db = await openOfflineDB();
+
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(
+          OFFLINE_STORE_NAME,
+          'readwrite'
+        );
+
+        const store = tx.objectStore(
+          OFFLINE_STORE_NAME
+        );
+
+        store.delete('offline_state');
+
+        // Wait for the transaction to COMMIT
+        // before reloading the page.
+        tx.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+
+        tx.onerror = () => {
+          db.close();
+          reject(tx.error);
+        };
+
+        tx.onabort = () => {
+          db.close();
+          reject(
+            new Error(
+              'IndexedDB logout transaction aborted'
+            )
+          );
+        };
+      });
+
+    } catch (e) {
+      console.error(
+        'Failed to clear Offline Mode state:',
+        e
+      );
+    }
+  }
+
   state.loggedIn = false;
-  saveState();
+  state.offlineMode = false;
+
   location.reload();
 }
-
 // ── SECTIONS ──
 
 function toggleMobileSidebar() {
@@ -2190,8 +2634,8 @@ function updatePadPreview() {
     findings: 'Pulse: 72/min, BP: 120/80 mmHg, S1+S2 heard.',
     investigation: 'CBC, RBS, Serum Creatinine',
     drugs: [
-      { name: 'Napa (Paracetamol)', form: 'Tablet', dose: '500mg', freq: '১+১+১', timing: 'After meal', route: 'Oral', duration: '5 days' },
-      { name: 'Seclo (Omeprazole)', form: 'Capsule', dose: '20mg', freq: '১+০+১', timing: 'Before meal', route: 'Oral', duration: '14 days' }
+      { name: 'Napa (Paracetamol)', form: 'Tablet', dose: '500mg', freq: '1+1+1', timing: 'After meal', route: 'Oral', duration: '5 days' },
+      { name: 'Seclo (Omeprazole)', form: 'Capsule', dose: '20mg', freq: '1+0+1', timing: 'Before meal', route: 'Oral', duration: '14 days' }
     ],
     advice: 'Avoid extra salt, walk 30 mins daily.',
     followupDays: '7', followupUnit: 'days', notes: '',
@@ -2208,6 +2652,78 @@ function updatePadPreview() {
 window.addEventListener('resize', updatePadPreviewScale);
 
 // ── PATIENTS ──
+// ── PATIENT MR NUMBER SYSTEM ──
+
+function generateNextMRNumber() {
+  let next =
+    Number(state.nextMrNumber) || 1;
+
+  // Make sure we never generate a number
+  // that already exists in the patient list.
+  const existingNumbers = state.patients
+    .map(p => {
+      const match = String(p.mrNumber || '')
+        .match(/^AA(\d+)$/);
+
+      return match
+        ? parseInt(match[1], 10)
+        : 0;
+    });
+
+  const highestExisting =
+    existingNumbers.length
+      ? Math.max(...existingNumbers)
+      : 0;
+
+  next = Math.max(
+    next,
+    highestExisting + 1
+  );
+
+  const mrNumber =
+    'AA' +
+    String(next).padStart(4, '0');
+
+  // Advance the counter so the number
+  // will never be reused after deletion.
+  state.nextMrNumber = next + 1;
+
+  return mrNumber;
+}
+
+function ensurePatientMRNumbers() {
+  let next =
+    Number(state.nextMrNumber) || 1;
+
+  state.patients.forEach(patient => {
+
+    // Existing patient already has an MR number
+    if (patient.mrNumber) {
+      const match =
+        String(patient.mrNumber)
+          .match(/^AA(\d+)$/);
+
+      if (match) {
+        next = Math.max(
+          next,
+          parseInt(match[1], 10) + 1
+        );
+      }
+
+      return;
+    }
+
+    // Existing patient created before
+    // the MR system was added.
+    patient.mrNumber =
+      'AA' +
+      String(next).padStart(4, '0');
+
+    next++;
+  });
+
+  state.nextMrNumber = next;
+}
 function openPatientModal(id = null) {
   state.editingPatientId = id;
   document.getElementById('patient-modal-title').textContent = id ? 'Edit Patient' : 'New Patient';
@@ -2234,12 +2750,18 @@ async function savePatient() {
     return;
   }
 
+  // ─────────────────────────────────────────
+  // EDIT EXISTING PATIENT
+  // ─────────────────────────────────────────
   if (state.editingPatientId) {
+
     const idx = state.patients.findIndex(
       x => x.id === state.editingPatientId
     );
 
     if (idx !== -1) {
+      // IMPORTANT:
+      // Keep the patient's existing MR number unchanged.
       state.patients[idx] = {
         ...state.patients[idx],
         name,
@@ -2255,8 +2777,20 @@ async function savePatient() {
     toast('✅ Patient updated');
 
   } else {
+
+    // ───────────────────────────────────────
+    // CREATE NEW PATIENT
+    // ───────────────────────────────────────
+
+    const mrNumber =
+      generateNextMRNumber();
+
     state.patients.push({
       id: uid(),
+
+      // Human-readable Medical Record Number
+      mrNumber: mrNumber,
+
       name,
       age: v('p-age'),
       gender: v('p-gender'),
@@ -2264,41 +2798,79 @@ async function savePatient() {
       blood: v('p-blood'),
       contact: v('p-contact'),
       allergies: v('p-allergies'),
+
       created: new Date().toISOString()
     });
 
-    toast('✅ Patient added');
+    toast(
+      '✅ Patient added — MR: ' + mrNumber
+    );
   }
 
-  // Save locally first
-  saveState();
+  await saveState();
 
   closeModal('modal-patient');
   renderPatients();
   renderDashboard();
 
-  // Sync patient changes to Google Drive
+  // Reset edit mode after saving
+  state.editingPatientId = null;
+
+// Sync patient changes to Google Drive
+if (googleAccessToken && !state.offlineMode) {
+  try {
+    await syncDrive(true);
+    toast('✅ Patient saved & synced to Google Drive');
+  } catch (e) {
+    console.error('Patient sync failed:', e);
+    toast('⚠️ Patient saved locally, but Drive sync failed');
+  }
+ }
+}
+
+async function deletePatient(id) {
+  if (!confirm('Delete this patient and all their prescriptions?')) return;
+
+  state.patients = state.patients.filter(p => p.id !== id);
+  state.prescriptions = state.prescriptions.filter(
+    rx => rx.patientId !== id
+  );
+
+  await saveState();
+
+  renderPatients();
+  renderDashboard();
+
+  // Sync deletion to Google Drive
   if (googleAccessToken && !state.offlineMode) {
     try {
       await syncDrive(true);
-      toast('✅ Patient saved & synced to Google Drive');
+      toast('✅ Patient deleted & synced to Google Drive');
     } catch (e) {
-      console.error('Patient sync failed:', e);
-      toast('⚠️ Patient saved locally, but Drive sync failed');
+      console.error('Patient deletion sync failed:', e);
+      toast('⚠️ Deleted locally, but Drive sync failed');
     }
+  } else {
+    toast('🗑️ Patient deleted');
   }
-}
-function deletePatient(id) {
-  if (!confirm('Delete this patient and all their prescriptions?')) return;
-  state.patients = state.patients.filter(p => p.id !== id);
-  state.prescriptions = state.prescriptions.filter(rx => rx.patientId !== id);
-  saveState(); renderPatients(); renderDashboard(); toast('🗑️ Patient deleted');
 }
 
 function renderPatients() {
   const grid = document.getElementById('patient-grid');
-  const q = v('patient-search').toLowerCase();
-  const filtered = state.patients.filter(p => p.name.toLowerCase().includes(q) || (p.contact||'').includes(q));
+  const q = v('patient-search').trim().toLowerCase();
+
+const filtered = state.patients.filter(p => {
+  const name = (p.name || '').toLowerCase();
+  const mrNumber = (p.mrNumber || '').toLowerCase();
+  const contact = (p.contact || '').toLowerCase();
+
+  return (
+    name.includes(q) ||
+    mrNumber.includes(q) ||
+    contact.includes(q)
+  );
+});
+
   if (!filtered.length) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="ico">👥</div><h3>No patients found</h3><p>Add your first patient to get started</p></div>`;
     return;
@@ -2313,6 +2885,11 @@ function renderPatients() {
         <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openPatientModal('${p.id}')">✏️</button>
         <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deletePatient('${p.id}')">🗑️</button>
       </div>
+      ${p.mrNumber ? `
+  <div class="patient-mr">
+    MR ${p.mrNumber}
+  </div>
+` : ''}
       <div class="patient-name">${p.name}</div>
       <div class="patient-meta">
         <span class="patient-badge ${isFemale ? 'badge-f' : 'badge-m'}">${p.gender || 'M'}</span>
@@ -2335,8 +2912,18 @@ function openPatientDetail(id) {
     <div class="modal-header">
       <div>
         <div class="modal-title">${p.name}</div>
-        <div class="text-muted">${p.age || ''} ${p.gender ? '· ' + p.gender : ''} ${p.blood ? '· ' + p.blood : ''} ${p.contact ? '· ' + p.contact : ''}</div>
-      </div>
+
+${p.mrNumber ? `
+  <div class="patient-mr" style="margin-top:4px; margin-bottom:5px;">
+    Medical Record No: ${p.mrNumber}
+  </div>
+` : ''}
+<div class="text-muted">
+  ${p.age || ''}
+  ${p.gender ? '· ' + p.gender : ''}
+  ${p.blood ? '· ' + p.blood : ''}
+  ${p.contact ? '· ' + p.contact : ''}
+</div>      </div>
       <button class="modal-close" onclick="document.getElementById('modal-patient-detail').remove()">✕</button>
     </div>
     <div class="modal-body">
@@ -2438,7 +3025,7 @@ function addDrugRow() {
       </div>
       <div style="width:150px">
         <div class="drug-field-label">Frequency (সময়)</div>
-        <input type="text" id="dfreq-${id}" list="freq-options" placeholder="e.g. ১+১+১ বা custom"
+        <input type="text" id="dfreq-${id}" list="freq-options" placeholder="e.g. 1+1+1 or custom"
           style="font-family:'DM Sans',sans-serif; font-size:12.5px; width:100%">
       </div>
       <div style="width:90px">
@@ -2951,8 +3538,7 @@ function parseXLSX(arrayBuffer) {
       } catch(e) { reject(new Error('Failed to read Excel file: ' + e.message)); }
     } else {
       const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-      s.onload = () => {
+           s.onload = () => {
         try {
           const wb = window.XLSX.read(arrayBuffer, { type: 'array' });
           const ws = wb.Sheets[wb.SheetNames[0]];

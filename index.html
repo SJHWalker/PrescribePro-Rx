@@ -2226,25 +2226,68 @@ function openPatientModal(id = null) {
 }
 
 // ── SAVE PATIENTS ──
-function savePatient() {
+async function savePatient() {
   const name = v('p-name').trim();
-  if (!name) { toast('❗ Patient name is required'); return; }
+
+  if (!name) {
+    toast('❗ Patient name is required');
+    return;
+  }
+
   if (state.editingPatientId) {
-    const idx = state.patients.findIndex(x => x.id === state.editingPatientId);
+    const idx = state.patients.findIndex(
+      x => x.id === state.editingPatientId
+    );
+
     if (idx !== -1) {
-      state.patients[idx] = { ...state.patients[idx], name, age: v('p-age'), gender: v('p-gender'), weight: v('p-weight'), blood: v('p-blood'), contact: v('p-contact'), allergies: v('p-allergies') };
+      state.patients[idx] = {
+        ...state.patients[idx],
+        name,
+        age: v('p-age'),
+        gender: v('p-gender'),
+        weight: v('p-weight'),
+        blood: v('p-blood'),
+        contact: v('p-contact'),
+        allergies: v('p-allergies')
+      };
     }
+
     toast('✅ Patient updated');
+
   } else {
-    state.patients.push({ id: uid(), name, age: v('p-age'), gender: v('p-gender'), weight: v('p-weight'), blood: v('p-blood'), contact: v('p-contact'), allergies: v('p-allergies'), created: new Date().toISOString() });
+    state.patients.push({
+      id: uid(),
+      name,
+      age: v('p-age'),
+      gender: v('p-gender'),
+      weight: v('p-weight'),
+      blood: v('p-blood'),
+      contact: v('p-contact'),
+      allergies: v('p-allergies'),
+      created: new Date().toISOString()
+    });
+
     toast('✅ Patient added');
   }
+
+  // Save locally first
   saveState();
+
   closeModal('modal-patient');
   renderPatients();
   renderDashboard();
-}
 
+  // Sync patient changes to Google Drive
+  if (googleAccessToken && !state.offlineMode) {
+    try {
+      await syncDrive(true);
+      toast('✅ Patient saved & synced to Google Drive');
+    } catch (e) {
+      console.error('Patient sync failed:', e);
+      toast('⚠️ Patient saved locally, but Drive sync failed');
+    }
+  }
+}
 function deletePatient(id) {
   if (!confirm('Delete this patient and all their prescriptions?')) return;
   state.patients = state.patients.filter(p => p.id !== id);
